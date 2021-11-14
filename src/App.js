@@ -10,6 +10,10 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import './App.css';
+import {Link,useParams} from "react-router-dom";
+import Post from './component/post';
+import RouterData from './component/routerData';
+import Header from './component/header';
 function App() {
   const [jobData,setJobData] = useState([]);
   const [status,setStatus] = useState(false);
@@ -25,9 +29,24 @@ function App() {
     
   }
 
+  const handleFilter = () => {
+    setStatus(false);
+    var url = `https://goodera-server-app.herokuapp.com/jobs?${keyword?'title='+keyword:""}${location?'&location='+location:""}`;
+    console.log(url);
+    axios.get(url)
+    .then(({data})=>{
+        setJobData([...data]);
+        console.log(jobData);
+        setStatus(true);
+    });
+  }
+
   useEffect(()=>{
        handleData();
+       console.log('a');
   },[]);
+
+  const {id} = useParams();
   return (
     <div className="App">
       {/* ******************main section***************  */}
@@ -35,18 +54,7 @@ function App() {
            {/* *******Top Section ************ */}
               <div className="headerStyle__section">
                 {/* **********Header menu section********* */}
-                 <div className="header_menu flex">
-                    <div className="flex">
-                      <nav  className="bottom_border">Jobhunt</nav>
-                      <nav>Finds Jobs</nav>
-                      <nav>Upskills Yourself</nav>
-                    </div>
-
-                    <div className="flex">
-                    <nav>Post a Job</nav>
-                    <nav>Sign In</nav>
-                    </div>
-                 </div>
+                        <Header/>
                 {/* **********Header menu section********* */}
               
                 <div className="extra_content">
@@ -58,36 +66,26 @@ function App() {
                        <div className="search-bar">
                          <div className="set_width">
                            <div><img src="https://imgur.com/1Avubq3.png" alt="secrch"/></div>
-                           <div className="job_title"><input type="text" placeholder="job title or keywords"/></div>
+                           <div className="job_title"><input type="text" placeholder="job title or keywords" onChange={(e)=>{setKeyword(e.target.value)}}/></div>
                         </div>
 
                           <div className="set_width">
                             <div><img src="https://imgur.com/YpFH8Qp.png" alt="loaction"/></div>
-                            <div><input type="text" placeholder="search location"/></div>
+                            <div><input type="text" placeholder="search location" onChange={(e)=>{setLocation(e.target.value)}}/></div>
                           </div>
 
 
                           <div className="search_btn">
-                            <button>search</button>
+                            <button onClick={handleFilter}>search</button>
                           </div>
 
                        </div>
                 {/* ****************end search bar*********** */}
               
               {/* ***********job section ************** */}
-                          <div className="joblist">
-                            {
-                              jobData.map((value,i)=> {
-                                return <div className="job_card" key={i}>
-                                <div className="img_bg"></div>
-                                <div className="job_content">
-                                  <h3>{value.title}</h3>
-                                  <p>{value.description}</p>
-                                </div>
-                              </div>
-                              })
-                            }
-                          </div>
+                
+                  <RouterData data={jobData}/>
+                          
               {/* *************end job section********* */}
               </div>
             {/* *******End Top Section ************ */}
